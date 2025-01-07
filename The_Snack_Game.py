@@ -1,89 +1,168 @@
 # For Question , Any Inquiry and Suggestion about the Program Contact me (chauhanrushil45@gmail.com)
 
-# The Perfect Snack Game Made with Pygame library enjoy it!! .....
+#The Snack game 
 
-import pygame #Library for for creating video games, interactive programs, and multimedia applications. 
-import time#Libarry for import cureent device time
-import random#Libarary for generate random movements
+import pygame
+import random
+import sys
 
+# Initialize Pygame
 pygame.init()
-width, height = 600, 400
-win = pygame.display.set_mode((width, height))
-pygame.display.set_caption('The Snake Game')
+
+# Screen Settings
+SCREEN_WIDTH = 800
+SCREEN_HEIGHT = 600
+screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+pygame.display.set_caption("The Snake Game")
 
 # Colors
-white = (255, 255, 255)
-red = (255, 0, 0)
-green = (0, 255, 0)
-black = (0, 0, 0)
+BACKGROUND_COLOR = (240, 248, 255)  # Light Blue
+SNAKE_COLOR = (0, 128, 0)  # Green
+FOOD_COLOR = (255, 69, 0)  # Red Orange
+TEXT_COLOR = (50, 50, 50)  # Dark Gray
+MENU_BG = (200, 230, 201)
 
-snake_pos = [100, 50]
-snake_body = [[100, 50], [90, 50], [80, 50]]
-food_pos = [random.randrange(1, (width//10)) * 10, random.randrange(1, (height//10)) * 10]
-food_spawn = True
-direction = 'RIGHT'
-change_to = direction
-speed = 15
+# Fonts
+FONT_TITLE = pygame.font.SysFont('Arial', 48, bold=True)
+FONT_MENU = pygame.font.SysFont('Arial', 32)
+FONT_TEXT = pygame.font.SysFont('Arial', 24)
 
+# Clock
 clock = pygame.time.Clock()
+FPS = 15
 
-while True:
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            pygame.quit()
-            quit()
-        if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_UP:
-                change_to = 'UP'
-            if event.key == pygame.K_DOWN:
-                change_to = 'DOWN'
-            if event.key == pygame.K_LEFT:
-                change_to = 'LEFT'
-            if event.key == pygame.K_RIGHT:
-                change_to = 'RIGHT'
-
-    if change_to == 'UP' and not direction == 'DOWN':
-        direction = 'UP'
-    if change_to == 'DOWN' and not direction == 'UP':
-        direction = 'DOWN'
-    if change_to == 'LEFT' and not direction == 'RIGHT':
-        direction = 'LEFT'
-    if change_to == 'RIGHT' and not direction == 'LEFT':
-        direction = 'RIGHT'
-
-    if direction == 'UP':
-        snake_pos[1] -= 10
-    if direction == 'DOWN':
-        snake_pos[1] += 10
-    if direction == 'LEFT':
-        snake_pos[0] -= 10
-    if direction == 'RIGHT':
-        snake_pos[0] += 10
-
-    snake_body.insert(0, list(snake_pos))
-    if snake_pos == food_pos:
-        food_spawn = False
+# Display Text
+def display_text(text, font, color, x, y, center=False):
+    surface = font.render(text, True, color)
+    rect = surface.get_rect()
+    if center:
+        rect.center = (x, y)
     else:
-        snake_body.pop()
+        rect.topleft = (x, y)
+    screen.blit(surface, rect)
 
-    if not food_spawn:
-        food_pos = [random.randrange(1, (width//10)) * 10, random.randrange(1, (height//10)) * 10]
-        food_spawn = True
+# Main Menu
+def main_menu():
+    while True:
+        screen.fill(MENU_BG)
+        display_text("The Snake Game", FONT_TITLE, TEXT_COLOR, SCREEN_WIDTH // 2, 100, center=True)
+        display_text("1. Start Game", FONT_MENU, TEXT_COLOR, SCREEN_WIDTH // 2, 250, center=True)
+        display_text("2. Change Snake Design", FONT_MENU, TEXT_COLOR, SCREEN_WIDTH // 2, 320, center=True)
+        display_text("3. How to Play", FONT_MENU, TEXT_COLOR, SCREEN_WIDTH // 2, 390, center=True)
+        display_text("4. Exit", FONT_MENU, TEXT_COLOR, SCREEN_WIDTH // 2, 460, center=True)
+        pygame.display.flip()
 
-    win.fill(black)
-    for pos in snake_body:
-        pygame.draw.rect(win, green, pygame.Rect(pos[0], pos[1], 10, 10))
-    pygame.draw.rect(win, red, pygame.Rect(food_pos[0], food_pos[1], 10, 10))
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_1:
+                    start_game()
+                if event.key == pygame.K_2:
+                    change_snake_design()
+                if event.key == pygame.K_3:
+                    how_to_play()
+                if event.key == pygame.K_4:
+                    pygame.quit()
+                    sys.exit()
 
-    if snake_pos[0] < 0 or snake_pos[0] > width-10 or snake_pos[1] < 0 or snake_pos[1] > height-10:
-        pygame.quit()
-        quit()
+# How to Play
+def how_to_play():
+    while True:
+        screen.fill(BACKGROUND_COLOR)
+        display_text("How to Play", FONT_TITLE, TEXT_COLOR, SCREEN_WIDTH // 2, 80, center=True)
+        display_text("- Use Arrow Keys to move the snake.", FONT_TEXT, TEXT_COLOR, 50, 200)
+        display_text("- Eat the red squares to grow.", FONT_TEXT, TEXT_COLOR, 50, 250)
+        display_text("- Avoid colliding with the walls or yourself.", FONT_TEXT, TEXT_COLOR, 50, 300)
+        display_text("- Press 'B' to return to the main menu.", FONT_TEXT, TEXT_COLOR, 50, 400)
+        pygame.display.flip()
 
-    for block in snake_body[1:]:
-        if snake_pos == block:
-            pygame.quit()
-            quit()
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_b:
+                main_menu()
 
-    pygame.display.update()
-    clock.tick(speed)
-#--------------------------Play And Enjoy!!---------------------------
+# Change Snake Design
+def change_snake_design():
+    global SNAKE_COLOR
+    while True:
+        screen.fill(BACKGROUND_COLOR)
+        display_text("Change Snake Design", FONT_TITLE, TEXT_COLOR, SCREEN_WIDTH // 2, 80, center=True)
+        display_text("1. Green Snake", FONT_MENU, TEXT_COLOR, SCREEN_WIDTH // 2, 200, center=True)
+        display_text("2. Blue Snake", FONT_MENU, TEXT_COLOR, SCREEN_WIDTH // 2, 270, center=True)
+        display_text("3. Yellow Snake", FONT_MENU, TEXT_COLOR, SCREEN_WIDTH // 2, 340, center=True)
+        display_text("Press 'B' to return to Main Menu", FONT_TEXT, TEXT_COLOR, SCREEN_WIDTH // 2, 450, center=True)
+        pygame.display.flip()
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_1:
+                    SNAKE_COLOR = (0, 128, 0)
+                if event.key == pygame.K_2:
+                    SNAKE_COLOR = (0, 0, 255)
+                if event.key == pygame.K_3:
+                    SNAKE_COLOR = (255, 255, 0)
+                if event.key == pygame.K_b:
+                    main_menu()
+
+# Start Game
+def start_game():
+    snake_pos = [100, 50]
+    snake_body = [[100, 50], [90, 50], [80, 50]]
+    food_pos = [random.randrange(1, (SCREEN_WIDTH//10)) * 10, random.randrange(1, (SCREEN_HEIGHT//10)) * 10]
+    food_spawn = True
+    direction = 'RIGHT'
+    change_to = direction
+    speed = 15
+
+    while True:
+        screen.fill(BACKGROUND_COLOR)
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+
+        keys = pygame.key.get_pressed()
+        if keys[pygame.K_LEFT]:
+            direction = 'LEFT'
+        if keys[pygame.K_RIGHT]:
+            direction = 'RIGHT'
+        if keys[pygame.K_UP]:
+            direction = 'UP'
+        if keys[pygame.K_DOWN]:
+            direction = 'DOWN'
+
+        if direction == 'UP':
+            snake_pos[1] -= 10
+        if direction == 'DOWN':
+            snake_pos[1] += 10
+        if direction == 'LEFT':
+            snake_pos[0] -= 10
+        if direction == 'RIGHT':
+            snake_pos[0] += 10
+
+        snake_body.insert(0, list(snake_pos))
+        if snake_pos == food_pos:
+            food_spawn = False
+        else:
+            snake_body.pop()
+
+        if not food_spawn:
+            food_pos = [random.randrange(1, (SCREEN_WIDTH//10)) * 10, random.randrange(1, (SCREEN_HEIGHT//10)) * 10]
+            food_spawn = True
+
+        for pos in snake_body:
+            pygame.draw.rect(screen, SNAKE_COLOR, pygame.Rect(pos[0], pos[1], 10, 10))
+        pygame.draw.rect(screen, FOOD_COLOR, pygame.Rect(food_pos[0], food_pos[1], 10, 10))
+
+        pygame.display.flip()
+        clock.tick(speed)
+
+# Start the Game
+main_menu()
